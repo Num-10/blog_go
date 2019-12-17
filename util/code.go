@@ -2,5 +2,6 @@ package util
 
 const(
 	SERVICE_ERROR = 500
+	SERVICE_CONNECT_MODEL = 501
 	READ_CONFIG_ERROR = 510
 )

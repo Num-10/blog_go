@@ -9,6 +9,7 @@ import (
 
 type config_struct struct {
 	App
+	Model
 }
 
 type App struct {
@@ -19,6 +20,18 @@ type App struct {
 }
 var AppIni App
 
+type Model struct {
+	Connection string
+	Host string
+	Port string
+	Database string
+	Username string
+	Password string
+	Args string
+	Prefix string
+}
+var ModelIni Model
+
 func init() {
 	config, err := ini.Load("conf/app.ini")
 	if err != nil {
@@ -28,7 +41,7 @@ func init() {
 	config_load := new(config_struct)
 	err = config.MapTo(config_load)
 	AppIni = config_load.App
-	fmt.Println(AppIni)
+	ModelIni = config_load.Model
 	if err != nil {
 		fmt.Println("load app.ini fail: " + err.Error())
 		os.Exit(util.READ_CONFIG_ERROR)
