@@ -17,6 +17,7 @@ type App struct {
 	Mode string `ini:"mode"`
 	Debug bool
 	Port string
+	MaxMultipartMemory int
 }
 var AppIni App
 
@@ -32,7 +33,7 @@ type Model struct {
 }
 var ModelIni Model
 
-func init() {
+func Setup() {
 	config, err := ini.Load("conf/app.ini")
 	if err != nil {
 		fmt.Println("load app.ini fail: " + err.Error())
