@@ -1,9 +1,20 @@
 package router
 
-import "github.com/gin-gonic/gin"
+import (
+	"blog_go/controller"
+	"blog_go/middleware"
+	"github.com/gin-gonic/gin"
+)
 
-func Router(router *gin.Engine)  {
-	openApi := router.Group("/oo"){
-		openApi.GET("/")
+func Router(router *gin.Engine) {
+	openApi := router.Group("/oo")
+	{
+		openApi.GET("/", controller.Index)
+	}
+
+	authApi := router.Group("/ao")
+	authApi.Use(middleware.Verification)
+	{
+		authApi.GET("/user/:id", controller.User)
 	}
 }
