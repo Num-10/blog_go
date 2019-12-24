@@ -6,12 +6,6 @@ import (
 	"time"
 )
 
-type JWT struct {
-	SigningKey []byte
-}
-
-var SigningKey = []byte(conf.AppIni.SigningKey)
-
 type CustomClaims struct {
 	ID    int `json:"user_id"`
 	Name  string `json:"username"`
@@ -30,6 +24,7 @@ func CreateToken(claims *CustomClaims) (string, error) {
 	}
 
 	tokenClaim := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	SigningKey := []byte(conf.AppIni.SigningKey)
 	token, err := tokenClaim.SignedString(SigningKey)
 	return token, err
 }
