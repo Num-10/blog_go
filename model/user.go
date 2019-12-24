@@ -10,3 +10,7 @@ type User struct {
 func (u *User) TableName() string {
 	return "blog_user"
 }
+
+func (u *User) GetUser(where *User) {
+	Db.Where(where).First(u)
+}

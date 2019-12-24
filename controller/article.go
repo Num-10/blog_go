@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"blog_go/util"
+	"blog_go/util/e"
 	"github.com/gin-gonic/gin"
 )
 
 func Index(c *gin.Context)  {
-	util.Json(c, 200, "ok", nil)
+	e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS})
 }

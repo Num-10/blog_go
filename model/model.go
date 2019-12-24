@@ -2,7 +2,7 @@ package model
 
 import (
 	"blog_go/conf"
-	"blog_go/util"
+	"blog_go/util/e"
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -17,7 +17,7 @@ func SetUp()  {
 		conf.ModelIni.Database + conf.ModelIni.Args)
 	if err != nil {
 		fmt.Println("connect model fail: " + err.Error())
-		os.Exit(util.SERVICE_CONNECT_MODEL)
+		os.Exit(e.SERVICE_CONNECT_MODEL)
 	}
 	gorm.DefaultTableNameHandler = func (db *gorm.DB, defaultTableName string) string  {
 		return conf.ModelIni.Prefix + defaultTableName;

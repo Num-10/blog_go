@@ -10,10 +10,11 @@ func Router(router *gin.Engine) {
 	openApi := router.Group("/oo")
 	{
 		openApi.GET("/", controller.Index)
+		openApi.POST("/login", controller.Login)
 	}
 
 	authApi := router.Group("/ao")
-	authApi.Use(middleware.Verification)
+	authApi.Use(middleware.Verification())
 	{
 		authApi.GET("/user/:id", controller.User)
 	}
