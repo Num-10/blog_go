@@ -28,3 +28,17 @@ func CreateToken(claims *CustomClaims) (string, error) {
 	token, err := tokenClaim.SignedString(SigningKey)
 	return token, err
 }
+
+func ParseToken(token string) (*CustomClaims, error) {
+	customClaims, err := jwt.ParseWithClaims(token, &CustomClaims{}, func(token *jwt.Token) (i interface{}, e error) {
+		return []byte(conf.AppIni.SigningKey), nil
+	})
+
+	if customClaims != nil {
+		if claims, ok := customClaims.Claims.(*CustomClaims); ok && customClaims.Valid {
+			return claims, nil
+		}
+	}
+
+	return nil, err
+}

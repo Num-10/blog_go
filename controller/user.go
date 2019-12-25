@@ -8,7 +8,8 @@ import (
 )
 
 func User(c *gin.Context) {
-	e.Json(c, &e.Return{Code:e.TOKEN_IN_VAIN})
+	user, _ := c.Get("login_user")
+	e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS, Data:user})
 }
 
 func Login(c *gin.Context) {
