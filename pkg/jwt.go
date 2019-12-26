@@ -1,4 +1,4 @@
-package util
+package pkg
 
 import (
 	"blog_go/conf"

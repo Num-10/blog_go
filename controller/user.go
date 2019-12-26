@@ -2,7 +2,7 @@ package controller
 
 import (
 	"blog_go/model"
-	"blog_go/util"
+	"blog_go/pkg"
 	"blog_go/util/e"
 	"github.com/gin-gonic/gin"
 )
@@ -29,11 +29,11 @@ func Login(c *gin.Context) {
 		e.Json(c, &e.Return{Code:e.LOGIN_PARAM_ERROR})
 		return
 	}
-	claim := util.CustomClaims{
+	claim := pkg.CustomClaims{
 		ID: user.ID,
 		Name: user.Username,
 	}
-	token, err := util.CreateToken(&claim)
+	token, err := pkg.CreateToken(&claim)
 	if err != nil {
 		e.Json(c, &e.Return{Code:e.TOKEN_CREATE_FAIL})
 		return

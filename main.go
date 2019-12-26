@@ -3,13 +3,15 @@ package main
 import (
 	"blog_go/conf"
 	"blog_go/model"
+	"blog_go/pkg"
 	"blog_go/router"
 	"github.com/gin-gonic/gin"
 )
 
 func init()  {
-	conf.Setup()
+	conf.SetUp()
 	model.SetUp()
+	pkg.RedisSetUp()
 }
 
 func main() {

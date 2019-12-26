@@ -10,6 +10,7 @@ import (
 type config_struct struct {
 	App
 	Model
+	Redis
 }
 
 type App struct {
@@ -35,7 +36,15 @@ type Model struct {
 }
 var ModelIni Model
 
-func Setup() {
+type Redis struct {
+	Addr string
+	Password string
+	Db int
+	PoolSize int
+}
+var RedisIni Redis
+
+func SetUp() {
 	config, err := ini.Load("conf/app.ini")
 	if err != nil {
 		fmt.Println("load app.ini fail: " + err.Error())
@@ -45,6 +54,7 @@ func Setup() {
 	err = config.MapTo(config_load)
 	AppIni = config_load.App
 	ModelIni = config_load.Model
+	RedisIni = config_load.Redis
 	if err != nil {
 		fmt.Println("load app.ini fail: " + err.Error())
 		os.Exit(e.READ_CONFIG_ERROR)

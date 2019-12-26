@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"blog_go/util"
+	"blog_go/pkg"
 	"blog_go/util/e"
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +13,7 @@ func Verification() gin.HandlerFunc {
 			e.AbortJson(c, &e.Return{Code:e.TOKEN_IN_VAIN})
 			return
 		}
-		user, err := util.ParseToken(token)
+		user, err := pkg.ParseToken(token)
 		if err != nil {
 			e.AbortJson(c, &e.Return{Code:e.TOKEN_IN_VAIN})
 			return
