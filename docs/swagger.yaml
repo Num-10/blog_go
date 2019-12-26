@@ -1,0 +1,43 @@
+basePath: /api/v1/
+definitions:
+  util.CustomClaims:
+    properties:
+      phone:
+        type: string
+      user_id:
+        type: integer
+      username:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: This is a sample server Petstore server.
+  license: {}
+  title: Swagger Example API
+  version: 0.0.1
+paths:
+  /ao/user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据user_id获取用户基础信息
+      operationId: get-string-by-int
+      parameters:
+      - description: user_id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          headers:
+            Token:
+              description: qwerty
+              type: string
+          schema:
+            $ref: '#/definitions/util.CustomClaims'
+      summary: 获取用户基础信息
+swagger: "2.0"
