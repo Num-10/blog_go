@@ -26,7 +26,7 @@ func LogSetUp()  {
 		if os.IsNotExist(err) {
 			_, err = os.Stat(LogPath)
 			if os.IsNotExist(err) {
-				
+
 			}
 		} else {
 			fmt.Println("err", err)
