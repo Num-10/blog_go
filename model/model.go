@@ -2,6 +2,7 @@ package model
 
 import (
 	"blog_go/conf"
+	"blog_go/middleware"
 	"blog_go/util/e"
 	"fmt"
 	"github.com/jinzhu/gorm"
@@ -23,5 +24,8 @@ func SetUp()  {
 		return conf.ModelIni.Prefix + defaultTableName;
 	}
 	db.SingularTable(true)
+	db.LogMode(true)
+	logger := &middleware.MysqlLog{}
+	db.SetLogger(logger)
 	Db = db
 }

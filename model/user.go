@@ -12,5 +12,6 @@ func (u *User) TableName() string {
 }
 
 func (u *User) GetUser(where *User) {
+	Db.Where(where).Find(u)
 	Db.Where(where).First(u)
 }

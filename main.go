@@ -2,6 +2,7 @@ package main
 
 import (
 	"blog_go/conf"
+	"blog_go/middleware"
 	"blog_go/model"
 	"blog_go/pkg"
 	"blog_go/router"
@@ -10,6 +11,7 @@ import (
 
 func init()  {
 	conf.SetUp()
+	pkg.LogSetUp()
 	model.SetUp()
 	pkg.RedisSetUp()
 }
@@ -20,7 +22,7 @@ func main() {
 	maxSize := int64(conf.AppIni.MaxMultipartMemory)
 	app.MaxMultipartMemory = maxSize << 20 // 3 MiB
 
-	app.Use(gin.Logger())
+	app.Use(middleware.LoggerToFile())
 	app.Use(gin.Recovery())
 
 	router.Router(app)

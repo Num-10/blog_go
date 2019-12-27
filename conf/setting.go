@@ -11,6 +11,7 @@ type config_struct struct {
 	App
 	Model
 	Redis
+	Log
 }
 
 type App struct {
@@ -44,6 +45,13 @@ type Redis struct {
 }
 var RedisIni Redis
 
+type Log struct {
+	Runtime string
+	LogPath string
+	LogFileName string
+}
+var LogIni Log
+
 func SetUp() {
 	config, err := ini.Load("conf/app.ini")
 	if err != nil {
@@ -55,6 +63,7 @@ func SetUp() {
 	AppIni = config_load.App
 	ModelIni = config_load.Model
 	RedisIni = config_load.Redis
+	LogIni = config_load.Log
 	if err != nil {
 		fmt.Println("load app.ini fail: " + err.Error())
 		os.Exit(e.READ_CONFIG_ERROR)
