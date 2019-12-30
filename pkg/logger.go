@@ -2,13 +2,9 @@ package pkg
 
 import (
 	"blog_go/conf"
-	"fmt"
-	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
-	"github.com/rifflock/lfshook"
+	"github.com/natefinch/lumberjack"
 	"github.com/sirupsen/logrus"
-	"os"
 	"path"
-	"time"
 )
 
 var Logger *logrus.Logger
@@ -23,8 +19,8 @@ func LogSetUp()  {
 	//日志文件
 	fileName := path.Join(LogPath, LogFileName)
 
-	//写入文件
-	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	/*//写入文件
+	_, err := os.Stat(fileName)
 	if err != nil {
 		if os.IsNotExist(err) {
 			_, err = os.Stat(LogPath)
@@ -34,24 +30,33 @@ func LogSetUp()  {
 					fmt.Println("create runtime/log fail：" + err.Error())
 				}
 			}
-			src, err = os.Create(fileName)
+			_, err = os.Create(fileName)
 			if err != nil {
 				fmt.Println("create runtime/log/service.log fail：" + err.Error())
 			}
 		} else {
 			fmt.Println("err", err)
 		}
-	}
+	}*/
+
 	//实例化
 	Logger = logrus.New()
 
 	//设置输出
-	Logger.Out = src
+	//Logger.Out = src
 
 	//设置日志级别
 	Logger.SetLevel(logrus.DebugLevel)
 
-	//设置 rotatelogs
+	//设置输出，并进行日志拆分
+	Logger.SetOutput(&lumberjack.Logger{
+		Filename: fileName,
+		//MaxSize: 300, //Mb
+		//MaxAge: 30, //days
+		LocalTime: true,
+	})
+
+	/*//设置 rotatelogs
 	logWriter, err := rotatelogs.New(
 		//分割后个文件名称
 		fileName + ".%Y%m%d.log",
@@ -79,7 +84,7 @@ func LogSetUp()  {
 		TimestampFormat:"2006-01-02 15:04:05",
 	})
 
-	Logger.AddHook(ifHook)
+	Logger.AddHook(ifHook)*/
 
 	//设置日志格式
 	Logger.SetFormatter(&logrus.TextFormatter{
