@@ -49,6 +49,9 @@ type Log struct {
 	Runtime string
 	LogPath string
 	LogFileName string
+	MaxSize int
+	MaxOldLogAge int
+	MaxOldLogCount int
 }
 var LogIni Log
 

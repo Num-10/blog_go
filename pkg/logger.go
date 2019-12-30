@@ -51,8 +51,9 @@ func LogSetUp()  {
 	//设置输出，并进行日志拆分
 	Logger.SetOutput(&lumberjack.Logger{
 		Filename: fileName,
-		//MaxSize: 300, //Mb
-		//MaxAge: 30, //days
+		MaxSize: conf.LogIni.MaxSize, //Mb
+		MaxAge: conf.LogIni.MaxOldLogAge, //days
+		MaxBackups: conf.LogIni.MaxOldLogCount,
 		LocalTime: true,
 	})
 
