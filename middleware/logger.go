@@ -17,11 +17,18 @@ var CurrentC *gin.Context
 type MysqlLog struct {}
 
 func (log *MysqlLog) Print (values ...interface{})  {
-	sql := CurrentC.GetStringSlice("mysql log collect")
+	if CurrentC == nil {
+		//脚本SQL不作日志记录
+		/*pkg.Logger.WithFields(logrus.Fields{
+			"sql": LogFormatter(values...),
+		}).Info("cron sql log")*/
+	} else {
+		sql := CurrentC.GetStringSlice("mysql log collect")
 
-	current_sql := LogFormatter(values...)
+		current_sql := LogFormatter(values...)
 
-	CurrentC.Set("mysql log collect", append(sql, current_sql...))
+		CurrentC.Set("mysql log collect", append(sql, current_sql...))
+	}
 
 }
 

@@ -29,6 +29,7 @@ func Login(c *gin.Context) {
 		e.Json(c, &e.Return{Code:e.LOGIN_PARAM_ERROR})
 		return
 	}
+
 	claim := pkg.CustomClaims{
 		ID: user.ID,
 		Name: user.Username,

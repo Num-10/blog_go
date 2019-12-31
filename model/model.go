@@ -12,7 +12,7 @@ import (
 
 var Db *gorm.DB
 
-func SetUp()  {
+func ModelSetUp()  {
 	db, err := gorm.Open(conf.ModelIni.Connection, conf.ModelIni.Username + ":"+
 		conf.ModelIni.Password +"@tcp("+ conf.ModelIni.Host +":"+ conf.ModelIni.Port +")/"+
 		conf.ModelIni.Database + conf.ModelIni.Args)

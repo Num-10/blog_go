@@ -20,6 +20,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
+	github.com/robfig/cron v1.2.0
 	github.com/sirupsen/logrus v1.4.2
 	golang.org/x/sys v0.0.0-20191228213918-04cbcbbfeed8 // indirect
 	gopkg.in/go-playground/validator.v9 v9.30.2 // indirect

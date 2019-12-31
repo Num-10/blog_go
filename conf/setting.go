@@ -17,7 +17,6 @@ type config_struct struct {
 type App struct {
 	Name string
 	Mode string `ini:"mode"`
-	Debug bool
 	Port string
 	MaxMultipartMemory int
 	JwtIssuer string
@@ -55,7 +54,7 @@ type Log struct {
 }
 var LogIni Log
 
-func SetUp() {
+func ConfigSetUp() {
 	config, err := ini.Load("conf/app.ini")
 	if err != nil {
 		fmt.Println("load app.ini fail: " + err.Error())
@@ -63,12 +62,20 @@ func SetUp() {
 	}
 	config_load := new(config_struct)
 	err = config.MapTo(config_load)
+	if err != nil {
+		fmt.Println("load app.ini fail: " + err.Error())
+		os.Exit(e.READ_CONFIG_ERROR)
+	}
 	AppIni = config_load.App
 	ModelIni = config_load.Model
 	RedisIni = config_load.Redis
 	LogIni = config_load.Log
-	if err != nil {
-		fmt.Println("load app.ini fail: " + err.Error())
-		os.Exit(e.READ_CONFIG_ERROR)
+
+	switch AppIni.Mode {
+	case "debug":
+	case "release":
+	case "test":
+	default:
+		AppIni.Mode = "debug"
 	}
 }
