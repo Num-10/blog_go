@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"blog_go/conf"
+	"blog_go/middleware"
 	"blog_go/model"
 	"blog_go/pkg"
 	"blog_go/router"
 	"blog_go/util/cron"
-	"blog_go/middleware"
+	"github.com/gin-gonic/gin"
 )
 
 func init()  {

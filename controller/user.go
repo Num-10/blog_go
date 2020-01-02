@@ -8,7 +8,7 @@ import (
 )
 
 func User(c *gin.Context) {
-	user, _ := c.Get("login_user")
+	user := c.GetStringMap("login_user")
 	e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS, Data:user})
 }
 

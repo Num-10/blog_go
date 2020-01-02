@@ -17,5 +17,8 @@ func Router(router *gin.Engine) {
 	authApi.Use(middleware.Verification())
 	{
 		authApi.GET("/user/:id", controller.User)
+		authApi.POST("/tag/save/:id", controller.TagCreate)
+		authApi.DELETE("/tag/delete/:id", controller.TagDelete)
+		authApi.POST("/article/save/:id", controller.ArticleSave)
 	}
 }

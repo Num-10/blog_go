@@ -18,7 +18,11 @@ func Verification() gin.HandlerFunc {
 			e.AbortJson(c, &e.Return{Code:e.TOKEN_IN_VAIN})
 			return
 		}
-		c.Set("login_user", user)
+		userInfo := map[string]interface{}{
+			"user_id": user.ID,
+			"user_name": user.Name,
+		}
+		c.Set("login_user", userInfo)
 
 		c.Next()
 	}
