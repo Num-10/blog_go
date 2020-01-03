@@ -7,6 +7,7 @@ import (
 	"blog_go/pkg"
 	"blog_go/router"
 	"blog_go/util/cron"
+	"blog_go/util/upload"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,6 +16,7 @@ func init()  {
 	pkg.LogSetUp()
 	model.ModelSetUp()
 	pkg.RedisSetUp()
+	upload.UploadSetUp()
 	go cron.CronSetup()
 }
 

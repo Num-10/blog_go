@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
-	"time"
 	"unicode/utf8"
 )
 
@@ -29,7 +28,7 @@ func TagCreate(c *gin.Context)  {
 
 	tag.Find(tag, "")
 	if tag.ID > 0 && tag.ID != id {
-		e.Json(c, &e.Return{Code:e.TAG_TITLE_IS_EXISTS})
+		e.Json(c, &e.Return{Code:e.TITLE_IS_EXISTS})
 		return
 	}
 	tag.Sort = sort
@@ -37,7 +36,6 @@ func TagCreate(c *gin.Context)  {
 	var err error
 	if id > 0 {
 		err = tag.Update(map[string]interface{}{"id": id}, map[string]interface{}{
-			"updated_at": time.Now().Unix(),
 			"title": title,
 			"sort": sort,
 		})

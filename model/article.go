@@ -36,3 +36,15 @@ func (a *Article) BeforeUpdate(scope *gorm.Scope) error {
 	return nil
 }
 
+func (a *Article) Create() error {
+	return Db.Create(a).Error
+}
+
+func (a *Article) Find(where interface{}, order string) {
+	Db.Where(where).Order(order).First(a)
+}
+
+func (a *Article) Update(where, data interface{}) error {
+	return Db.Model(&Article{}).Where(where).Update(data).Error
+}
+

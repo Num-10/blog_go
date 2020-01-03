@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/go-ini/ini"
 	"os"
+	"path"
+	"strings"
 )
 
 type config_struct struct {
@@ -12,6 +14,7 @@ type config_struct struct {
 	Model
 	Redis
 	Log
+	Upload
 }
 
 type App struct {
@@ -21,6 +24,7 @@ type App struct {
 	MaxMultipartMemory int
 	JwtIssuer string
 	SigningKey string
+	RootPath string
 }
 var AppIni App
 
@@ -54,6 +58,16 @@ type Log struct {
 }
 var LogIni Log
 
+type Upload struct {
+	SavePath string
+	SaveImageDir string
+	SaveImagePath string
+	ImageAllowExt string
+	ImageAllowExtSlice []string
+	ImageMaxSize int
+}
+var UploadIni Upload
+
 func ConfigSetUp() {
 	config, err := ini.Load("conf/app.ini")
 	if err != nil {
@@ -70,6 +84,7 @@ func ConfigSetUp() {
 	ModelIni = config_load.Model
 	RedisIni = config_load.Redis
 	LogIni = config_load.Log
+	UploadIni = config_load.Upload
 
 	switch AppIni.Mode {
 	case "debug":
@@ -78,4 +93,8 @@ func ConfigSetUp() {
 	default:
 		AppIni.Mode = "debug"
 	}
+	AppIni.RootPath, _ = os.Getwd()
+
+	UploadIni.ImageAllowExtSlice = strings.Split(UploadIni.ImageAllowExt, ",")
+	UploadIni.SaveImagePath = path.Join(LogIni.Runtime, UploadIni.SavePath, UploadIni.SaveImageDir)
 }
