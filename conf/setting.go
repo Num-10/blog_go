@@ -25,6 +25,8 @@ type App struct {
 	JwtIssuer string
 	SigningKey string
 	RootPath string
+	DomainUrl string
+	ImageUrl string
 }
 var AppIni App
 

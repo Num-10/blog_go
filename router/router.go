@@ -7,9 +7,11 @@ import (
 )
 
 func Router(router *gin.Engine) {
+	router.Static("/images", "./runtime/upload/images")
 	openApi := router.Group("/oo")
 	{
-		openApi.GET("/", controller.Index)
+		openApi.GET("", controller.Index)
+		openApi.GET("/article/:id", controller.SingleArticle)
 		openApi.POST("/login", controller.Login)
 	}
 
@@ -20,5 +22,6 @@ func Router(router *gin.Engine) {
 		authApi.POST("/tag/save/:id", controller.TagCreate)
 		authApi.DELETE("/tag/delete/:id", controller.TagDelete)
 		authApi.POST("/article/save/:id", controller.ArticleSave)
+		authApi.DELETE("/article/delete/:id", controller.ArticleDelete)
 	}
 }

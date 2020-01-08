@@ -18,6 +18,7 @@ const(
 	LOGIN_PARAM_ERROR = 2002
 
 	TITLE_IS_EXISTS = 2003
+	DATA_NOT_EXISTS = 2004
 )
 
 var Message = map[int]string {
@@ -38,7 +39,8 @@ var Message = map[int]string {
 	LOGIN_PARAM_EMPTY       : "账号或密码不能为空",
 	LOGIN_PARAM_ERROR       : "账号或密码错误",
 
-	TITLE_IS_EXISTS			: "标签名称已存在",
+	TITLE_IS_EXISTS			: "名称已存在",
+	DATA_NOT_EXISTS			: "信息不存在",
 }
 
 func GetMsg(code int) (string) {

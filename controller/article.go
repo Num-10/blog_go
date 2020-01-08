@@ -1,11 +1,14 @@
 package controller
 
 import (
+	"blog_go/conf"
 	"blog_go/model"
+	"blog_go/pkg"
 	"blog_go/util/e"
 	"blog_go/util/upload"
 	"github.com/gin-gonic/gin"
 	"strconv"
+	"time"
 	"unicode/utf8"
 )
 
@@ -21,8 +24,101 @@ type article_form struct {
 	Status		  int    `form:"status"`
 }
 
+type article_list struct {
+	ID            int    `gorm:"column:id;primary_key" json:"article_id"`
+	TagID         int    `gorm:"column:tag_id" json:"-"`
+	Title         string `gorm:"column:title" json:"title"`
+	Content       string `gorm:"column:content" json:"content"`
+	CoverImageURL string `gorm:"column:cover_image_url" json:"cover_image_url"`
+	Created       int    `gorm:"column:created" json:"created"`
+	Desc          string `gorm:"column:desc" json:"desc"`
+	IsMarrow      int    `gorm:"column:is_marrow" json:"is_marrow"`
+	IsTop         int    `gorm:"column:is_top" json:"is_top"`
+	Sort          int    `gorm:"column:sort" json:"sort"`
+	Status        int    `gorm:"column:status" json:"-"`
+	ViewCount	  int	 `gorm:"column:view_count" json:"view_count"`
+	Updated       int    `gorm:"column:updated" json:"updated"`
+	CreatedFormat string `json:"created_format"`
+	UpdatedFormat string `json:"updated_format"`
+	TagName		  string `json:"tag_name"`
+}
+
 func Index(c *gin.Context)  {
-	e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS})
+	search := c.Query("search")
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	page_size, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
+
+	params := make(map[string]interface{})
+
+	article := &model.Article{}
+	var articleList []article_list
+	article.GetList(params, map[string]interface{}{"page": page, "page_size": page_size, "multi_like_search": search}, &articleList, 0)
+
+	for key, value := range articleList {
+		if value.Created > 0 {
+			articleList[key].CreatedFormat = time.Unix(int64(value.Created), 0).Format("2006-01-02 15:04:05")
+		}
+		if value.Updated > 0 {
+			articleList[key].UpdatedFormat = time.Unix(int64(value.Updated), 0).Format("2006-01-02 15:04:05")
+		}
+		tag := &model.Tag{}
+		tag.Find(map[string]interface{}{"id": value.TagID}, "")
+		articleList[key].TagName = tag.Title
+		view_count, _ := pkg.Redis.Get(model.ARTICLE_VIEW_COUNT_PREFIX + strconv.Itoa(value.ID)).Int()
+		articleList[key].ViewCount += view_count
+		if value.CoverImageURL != "" {
+			articleList[key].CoverImageURL = conf.AppIni.DomainUrl + conf.AppIni.ImageUrl + value.CoverImageURL
+		}
+	}
+
+	e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS, Data: articleList})
+}
+
+func SingleArticle(c *gin.Context)  {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	article := &model.Article{}
+	var articleList []article_list
+	article.GetList(map[string]interface{}{"id": id}, map[string]interface{}{}, &articleList, 0)
+
+	//获取cookie
+	cookie, _ := c.Cookie("view_article")
+
+	var has_view string
+	for key, value := range articleList {
+		if cookie != "" {
+			has_view = pkg.Redis.Get(model.ARTICLE_VIEW_COUNT_PREFIX + cookie + "|article_id:" + strconv.Itoa(value.ID)).Val()
+		} else {
+			//设置cookie标记
+
+		}
+		if has_view == "" {
+			//记录文章访问人数
+			
+		}
+
+		if value.Created > 0 {
+			articleList[key].CreatedFormat = time.Unix(int64(value.Created), 0).Format("2006-01-02 15:04:05")
+		}
+		if value.Updated > 0 {
+			articleList[key].UpdatedFormat = time.Unix(int64(value.Updated), 0).Format("2006-01-02 15:04:05")
+		}
+		tag := &model.Tag{}
+		tag.Find(map[string]interface{}{"id": value.TagID}, "")
+		articleList[key].TagName = tag.Title
+		view_count, _ := pkg.Redis.Get(model.ARTICLE_VIEW_COUNT_PREFIX + strconv.Itoa(value.ID)).Int()
+		articleList[key].ViewCount += view_count
+		if value.CoverImageURL != "" {
+			articleList[key].CoverImageURL = conf.AppIni.DomainUrl + conf.AppIni.ImageUrl + value.CoverImageURL
+		}
+	}
+
+	if len(articleList) > 0 {
+		e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS, Data: articleList[0]})
+	} else {
+		e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS})
+	}
+
 }
 
 func ArticleSave(c *gin.Context)  {
@@ -41,7 +137,7 @@ func ArticleSave(c *gin.Context)  {
 		return
 	}
 	if json.Status == 0 {
-		json.Status = 1
+		json.Status = model.ARTICLE_STATUS_NORMAL
 	}
 	article := &(model.Article{
 		UserID:        (user["user_id"]).(int),
@@ -93,6 +189,25 @@ func ArticleSave(c *gin.Context)  {
 	} else {
 		err = article.Create()
 	}
+	if err != nil {
+		e.Json(c, &e.Return{Code:e.SERVICE_FIAL})
+		return
+	}
+	e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS})
+}
+
+func ArticleDelete(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	if id <= 0 {
+		e.Json(c, &e.Return{Code:e.PRRAMS_ERROR})
+	}
+	article := &model.Article{ID:id}
+	article.Find(article, "")
+	if article.Title == "" {
+		e.Json(c, &e.Return{Code:e.DATA_NOT_EXISTS})
+		return
+	}
+	err := article.Update(article, map[string]interface{}{"status": model.ARTICLE_STATUS_DELETE})
 	if err != nil {
 		e.Json(c, &e.Return{Code:e.SERVICE_FIAL})
 		return
