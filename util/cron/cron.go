@@ -13,7 +13,6 @@ func CronSetup()  {
 	c := cron.New()
 
 	c.AddFunc("0 0 2 * * *", func() {
-		//fmt.Println("cron doing 1...")
 		//model.TestCreateUser()
 		controller.StatisticsViewCount()
 	})
