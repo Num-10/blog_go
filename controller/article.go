@@ -6,8 +6,12 @@ import (
 	"blog_go/pkg"
 	"blog_go/util/e"
 	"blog_go/util/upload"
+	"crypto/md5"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"strconv"
+	"strings"
 	"time"
 	"unicode/utf8"
 )
@@ -45,14 +49,23 @@ type article_list struct {
 
 func Index(c *gin.Context)  {
 	search := c.Query("search")
+	tag_id, _ := strconv.Atoi(c.Query("tag_id"))
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	page_size, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
 
 	params := make(map[string]interface{})
+	if tag_id > 0 {
+		params["tag_id"] = tag_id
+	}
 
 	article := &model.Article{}
 	var articleList []article_list
-	article.GetList(params, map[string]interface{}{"page": page, "page_size": page_size, "multi_like_search": search}, &articleList, 0)
+	article.GetList(params, map[string]interface{}{
+		"page": page,
+		"page_size": page_size,
+		"multi_like_search": search,
+		"order": "is_top desc,sort desc,created desc,id desc",
+	}, &articleList, 0)
 
 	for key, value := range articleList {
 		if value.Created > 0 {
@@ -64,7 +77,7 @@ func Index(c *gin.Context)  {
 		tag := &model.Tag{}
 		tag.Find(map[string]interface{}{"id": value.TagID}, "")
 		articleList[key].TagName = tag.Title
-		view_count, _ := pkg.Redis.Get(model.ARTICLE_VIEW_COUNT_PREFIX + strconv.Itoa(value.ID)).Int()
+		view_count, _ := pkg.Redis.Get(model.ARTICLE_VIEW_COUNT_PREFIX + "id:" + strconv.Itoa(value.ID)).Int()
 		articleList[key].ViewCount += view_count
 		if value.CoverImageURL != "" {
 			articleList[key].CoverImageURL = conf.AppIni.DomainUrl + conf.AppIni.ImageUrl + value.CoverImageURL
@@ -87,14 +100,20 @@ func SingleArticle(c *gin.Context)  {
 	var has_view string
 	for key, value := range articleList {
 		if cookie != "" {
-			has_view = pkg.Redis.Get(model.ARTICLE_VIEW_COUNT_PREFIX + cookie + "|article_id:" + strconv.Itoa(value.ID)).Val()
+			has_view = pkg.Redis.Get(model.ARTICLE_VIEW_COUNT_PREFIX + "cookie:" + cookie + "|id:" + strconv.Itoa(value.ID)).Val()
 		} else {
 			//设置cookie标记
-
+			str := []byte(c.Request.Header.Get("User-Agent") + strconv.Itoa(int(time.Now().Unix())))
+			cookie = fmt.Sprintf("%x", md5.Sum(str))
+			c.SetCookie("view_article", cookie, 86400, "", "", false, false)
 		}
 		if has_view == "" {
 			//记录文章访问人数
-			
+			now := time.Now()
+			now_str := time.Now().Format("2006-01-02")
+			tomorrow, _ := time.ParseInLocation("2006-01-02 15:04:05", now_str + " 23:59:59", time.Local)
+			pkg.Redis.Set(model.ARTICLE_VIEW_COUNT_PREFIX + "cookie:" + cookie + "|id:" + strconv.Itoa(value.ID), 1, tomorrow.Sub(now))
+			pkg.Redis.Incr(model.ARTICLE_VIEW_COUNT_PREFIX + "id:" + strconv.Itoa(value.ID))
 		}
 
 		if value.Created > 0 {
@@ -106,7 +125,7 @@ func SingleArticle(c *gin.Context)  {
 		tag := &model.Tag{}
 		tag.Find(map[string]interface{}{"id": value.TagID}, "")
 		articleList[key].TagName = tag.Title
-		view_count, _ := pkg.Redis.Get(model.ARTICLE_VIEW_COUNT_PREFIX + strconv.Itoa(value.ID)).Int()
+		view_count, _ := pkg.Redis.Get(model.ARTICLE_VIEW_COUNT_PREFIX + "id:" + strconv.Itoa(value.ID)).Int()
 		articleList[key].ViewCount += view_count
 		if value.CoverImageURL != "" {
 			articleList[key].CoverImageURL = conf.AppIni.DomainUrl + conf.AppIni.ImageUrl + value.CoverImageURL
@@ -213,4 +232,21 @@ func ArticleDelete(c *gin.Context) {
 		return
 	}
 	e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS})
+}
+
+func StatisticsViewCount()  {
+	keys, _ := pkg.Redis.Scan(0, model.ARTICLE_VIEW_COUNT_PREFIX + "id:*", 1000).Val()
+	article := &model.Article{}
+	for _, value := range keys {
+		view_count, _ := pkg.Redis.Get(value).Int()
+		pkg.Redis.Del(value)
+
+		str := strings.Split(value, model.ARTICLE_VIEW_COUNT_PREFIX + "id:")
+		article.ID, _ = strconv.Atoi(str[1])
+		err := article.Update(article, map[string]interface{}{"view_count": gorm.Expr("view_count + ?", view_count)})
+
+		if err != nil {
+			pkg.Redis.IncrBy(value, int64(view_count))
+		}
+	}
 }

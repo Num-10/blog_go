@@ -10,7 +10,7 @@ const (
 	ARTICLE_STATUS_HIDE = -1
 	ARTICLE_STATUS_DELETE = -9
 
-	ARTICLE_VIEW_COUNT_PREFIX = "article_view_count|id:"
+	ARTICLE_VIEW_COUNT_PREFIX = "article_view_count|"
 )
 
 type Article struct {

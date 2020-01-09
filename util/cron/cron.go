@@ -1,6 +1,7 @@
 package cron
 
 import (
+	"blog_go/controller"
 	"fmt"
 	"github.com/robfig/cron"
 	"time"
@@ -11,9 +12,10 @@ func CronSetup()  {
 
 	c := cron.New()
 
-	c.AddFunc("* * * * * *", func() {
+	c.AddFunc("0 0 2 * * *", func() {
 		//fmt.Println("cron doing 1...")
 		//model.TestCreateUser()
+		controller.StatisticsViewCount()
 	})
 
 	c.Start()
