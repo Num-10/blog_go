@@ -51,6 +51,7 @@ type article_list struct {
 	Test3		  string `json:"test3"`
 	Test4		  string `json:"test4"`
 	Test5		  string `json:"test5"`
+	Test6		  string `json:"test6"`
 }
 
 func Index(c *gin.Context)  {
