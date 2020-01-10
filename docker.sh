@@ -1,4 +1,5 @@
 #!/bin/bash
+cd /home/lnmp/golang/blog_go
 #生成镜像
 docker build -t blog_go .
 #停止并删除旧容器
