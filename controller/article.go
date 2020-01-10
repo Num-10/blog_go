@@ -45,6 +45,7 @@ type article_list struct {
 	CreatedFormat string `json:"created_format"`
 	UpdatedFormat string `json:"updated_format"`
 	TagName		  string `json:"tag_name"`
+	Test		  string `json:"test"`
 }
 
 func Index(c *gin.Context)  {
