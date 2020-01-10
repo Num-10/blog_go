@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#test
 echo "111"
-docker build -t blog_go -f /home/lnmp/golang/blog_go/Dockerfile .
+cd /home/lnmp/golang/blog_go
+docker build -t blog_go .
 echo "222"
