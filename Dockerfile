@@ -7,7 +7,7 @@ WORKDIR /home/lnmp/golang/blog_go
 #将服务器的go工程代码加入到docker容器中
 ADD . /home/lnmp/golang/blog_go
 #go构建可执行文件
-RUN go build -o blog_go /home/lnmp/golang/blog_go
+RUN go build -o blog_go /home/lnmp/golang/blog_go/...
 #暴露端口
 EXPOSE 8888
 #最终运行docker的命令
