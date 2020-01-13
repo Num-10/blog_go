@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-docker build -t blog_go -f /home/lnmp/golang/blog_go/Dockerfile .
+cd /home/lnmp/golang/blog_go
+docker build -t blog_go .
 
 if [ ! "$(docker ps -q -f name=blog_go)" ]; then
     if [ "$(docker ps -aq -f status=running -f name=blog_go)" ]; then
