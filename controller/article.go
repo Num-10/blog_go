@@ -45,16 +45,6 @@ type article_list struct {
 	CreatedFormat string `json:"created_format"`
 	UpdatedFormat string `json:"updated_format"`
 	TagName		  string `json:"tag_name"`
-	Test		  string `json:"test"`
-	Test1		  string `json:"test1"`
-	Test2		  string `json:"test2"`
-	Test3		  string `json:"test3"`
-	Test4		  string `json:"test4"`
-	Test5		  string `json:"test5"`
-	Test6		  string `json:"test6"`
-	Test7		  string `json:"test7"`
-	Test8		  string `json:"test8"`
-	Test9		  string `json:"test9"`
 }
 
 func Index(c *gin.Context)  {
