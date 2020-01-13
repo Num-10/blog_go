@@ -13,4 +13,4 @@ if [ "$(docker ps -q -f name=blog_go)" ]; then
     fi
 fi
 # run container
-docker run --name blog_go -v /home/lnmp/golang/blog_go/runtime:/home/lnmp/golang/blog_go/runtime --network lnmp -p 8888:8888 -d blog_go
+docker run --name blog_go -v /home/lnmp/golang/blog_go/runtime:/home/lnmp/golang/blog_go/runtime -v /etc/localtime:/etc/localtime:ro  --network lnmp -p 8888:8888 -d blog_go
