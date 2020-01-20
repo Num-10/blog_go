@@ -57,7 +57,7 @@ func (a *Article) Update(where, data interface{}) error {
 	return Db.Model(&Article{}).Where(where).Update(data).Error
 }
 
-func (a *Article) GetList(where map[string]interface{}, extra map[string]interface{}, articles interface{}, count int) {
+func (a *Article) GetList(where map[string]interface{}, extra map[string]interface{}, articles interface{}, count *int) {
 	query := Db.Model(&Article{}).Where(where)
 	if _, ok := extra["multi_like_search"]; ok && extra["multi_like_search"] != "" {
 		extra["multi_like_search"] = "%"+ (extra["multi_like_search"]).(string) + "%"

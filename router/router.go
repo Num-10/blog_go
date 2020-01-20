@@ -13,6 +13,10 @@ func Router(router *gin.Engine) {
 		openApi.GET("", controller.Index)
 		openApi.GET("/article/:id", controller.SingleArticle)
 		openApi.POST("/login", controller.Login)
+		openApi.GET("/captcha", controller.GetCaptcha)
+		openApi.GET("/captcha/:captchaId", controller.GetCaptchaImage)
+		openApi.GET("/verify/:captchaId/:value", controller.VerifyCaptcha)
+		openApi.GET("/tag/list", controller.TagList)
 	}
 
 	authApi := router.Group("/ao")

@@ -9,6 +9,48 @@ import (
 	"unicode/utf8"
 )
 
+type tag_list struct {
+	TagId int  `json:"tag_id"`
+	Title string `json:"title"`
+	ArticleCount int `json:"article_count"`
+}
+
+func TagList(c *gin.Context)  {
+	page, _ := strconv.Atoi(c.Query("page"))
+	page_size, _ := strconv.Atoi(c.Query("page_size"))
+	params := make(map[string]interface{})
+
+	tag := &model.Tag{}
+	var tagList []model.Tag
+	result := make(map[string]interface{})
+	var tag_lists []tag_list
+	var count int
+	extra := make(map[string]interface{})
+	extra["order"] = "sort desc,id desc"
+	extra["field"] = "id,title"
+	if page > 0 && page_size > 0 {
+		extra["page"] = page
+		extra["page_size"] = page_size
+	}
+
+	tag.GetList(params, extra, &tagList, &count)
+
+	article := &model.Article{}
+	var articleList []string
+	var tag_key tag_list
+
+	for _, value := range tagList {
+		tag_key.TagId = value.ID
+		tag_key.Title = value.Title
+		article.GetList(map[string]interface{}{"tag_id": value.ID}, map[string]interface{}{"count": true}, &articleList, &count)
+		tag_key.ArticleCount = count
+		tag_lists = append(tag_lists, tag_key)
+	}
+
+	result["list"] = tag_lists
+	e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS, Data: result})
+}
+
 func TagCreate(c *gin.Context)  {
 	id, _ := strconv.Atoi(c.Param("id"))
 	user := c.GetStringMap("login_user")

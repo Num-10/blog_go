@@ -13,6 +13,7 @@ const(
 	IMAGE_OVER_SIZE = 1003
 	IMAGE_NOT_ALLOW_EXT = 1004
 	IMAGE_SAVE_FIAL = 1005
+	CAPTCHA_FAIL = 1006
 
 	LOGIN_PARAM_EMPTY = 2001
 	LOGIN_PARAM_ERROR = 2002
@@ -35,6 +36,8 @@ var Message = map[int]string {
 	IMAGE_OVER_SIZE			: "图片超过大小限制",
 	IMAGE_NOT_ALLOW_EXT		: "图片格式不支持",
 	IMAGE_SAVE_FIAL			: "图片上传失败",
+
+	CAPTCHA_FAIL			: "验证码错误",
 
 	LOGIN_PARAM_EMPTY       : "账号或密码不能为空",
 	LOGIN_PARAM_ERROR       : "账号或密码错误",

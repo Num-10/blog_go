@@ -56,3 +56,27 @@ func (t *Tag) Delete() error {
 	tx.Commit()
 	return nil
 }
+
+func (t *Tag) GetList(where map[string]interface{}, extra map[string]interface{}, tags interface{}, count *int) {
+	query := Db.Model(&Tag{}).Where(where)
+	if _, ok := extra["field"]; ok {
+		query = query.Select(extra["field"])
+	}
+	if _, ok := extra["group"]; ok {
+		query = query.Group((extra["group"]).(string))
+	}
+	if _, ok := extra["count"]; ok {
+		query = query.Count(count)
+		return
+	}
+	if _, ok := extra["order"]; ok {
+		query = query.Order(extra["order"])
+	}
+	page, ok := extra["page"];
+	pageSize, pok := extra["page_size"];
+	if ok && pok {
+		query = query.Limit(pageSize).Offset(((page).(int) - 1) * (pageSize).(int))
+	}
+	query = query.Scan(tags)
+	return
+}

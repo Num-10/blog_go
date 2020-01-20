@@ -30,7 +30,8 @@ type article_form struct {
 
 type article_list struct {
 	ID            int    `gorm:"column:id;primary_key" json:"article_id"`
-	TagID         int    `gorm:"column:tag_id" json:"-"`
+	TagID         int    `gorm:"column:tag_id" json:"tag_id"`
+	UserId         int   `gorm:"column:user_id" json:"-"`
 	Title         string `gorm:"column:title" json:"title"`
 	Content       string `gorm:"column:content" json:"content"`
 	CoverImageURL string `gorm:"column:cover_image_url" json:"cover_image_url"`
@@ -45,6 +46,7 @@ type article_list struct {
 	CreatedFormat string `json:"created_format"`
 	UpdatedFormat string `json:"updated_format"`
 	TagName		  string `json:"tag_name"`
+	Author		  string `json:"author"`
 }
 
 func Index(c *gin.Context)  {
@@ -60,19 +62,28 @@ func Index(c *gin.Context)  {
 
 	article := &model.Article{}
 	var articleList []article_list
+	result := make(map[string]interface{})
+	var count int
 	article.GetList(params, map[string]interface{}{
 		"page": page,
 		"page_size": page_size,
 		"multi_like_search": search,
 		"order": "is_top desc,sort desc,created desc,id desc",
-	}, &articleList, 0)
+		"count": true,
+	}, &articleList, &count)
+	article.GetList(params, map[string]interface{}{
+		"page": page,
+		"page_size": page_size,
+		"multi_like_search": search,
+		"order": "is_top desc,sort desc,created desc,id desc",
+	}, &articleList, &count)
 
 	for key, value := range articleList {
 		if value.Created > 0 {
-			articleList[key].CreatedFormat = time.Unix(int64(value.Created), 0).Format("2006-01-02 15:04:05")
+			articleList[key].CreatedFormat = time.Unix(int64(value.Created), 0).Format("2006-01-02")
 		}
 		if value.Updated > 0 {
-			articleList[key].UpdatedFormat = time.Unix(int64(value.Updated), 0).Format("2006-01-02 15:04:05")
+			articleList[key].UpdatedFormat = time.Unix(int64(value.Updated), 0).Format("2006-01-02")
 		}
 		tag := &model.Tag{}
 		tag.Find(map[string]interface{}{"id": value.TagID}, "")
@@ -82,9 +93,15 @@ func Index(c *gin.Context)  {
 		if value.CoverImageURL != "" {
 			articleList[key].CoverImageURL = conf.AppIni.DomainUrl + conf.AppIni.ImageUrl + value.CoverImageURL
 		}
+
+		user := &model.User{ID: value.UserId}
+		user.GetUser(user)
+		articleList[key].Author = user.Username
 	}
 
-	e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS, Data: articleList})
+	result["list"] = articleList
+	result["count"] = count
+	e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS, Data: result})
 }
 
 func SingleArticle(c *gin.Context)  {
@@ -92,7 +109,8 @@ func SingleArticle(c *gin.Context)  {
 
 	article := &model.Article{}
 	var articleList []article_list
-	article.GetList(map[string]interface{}{"id": id}, map[string]interface{}{}, &articleList, 0)
+	var count int
+	article.GetList(map[string]interface{}{"id": id}, map[string]interface{}{}, &articleList, &count)
 
 	//获取cookie
 	cookie, _ := c.Cookie("view_article")
@@ -130,6 +148,10 @@ func SingleArticle(c *gin.Context)  {
 		if value.CoverImageURL != "" {
 			articleList[key].CoverImageURL = conf.AppIni.DomainUrl + conf.AppIni.ImageUrl + value.CoverImageURL
 		}
+
+		user := &model.User{ID: value.UserId}
+		user.GetUser(user)
+		articleList[key].Author = user.Username
 	}
 
 	if len(articleList) > 0 {
