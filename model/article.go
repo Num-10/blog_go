@@ -59,6 +59,9 @@ func (a *Article) Update(where, data interface{}) error {
 
 func (a *Article) GetList(where map[string]interface{}, extra map[string]interface{}, articles interface{}, count *int) {
 	query := Db.Model(&Article{}).Where(where)
+	if _, ok := extra["field"]; ok {
+		query = query.Select(extra["field"])
+	}
 	if _, ok := extra["multi_like_search"]; ok && extra["multi_like_search"] != "" {
 		extra["multi_like_search"] = "%"+ (extra["multi_like_search"]).(string) + "%"
 		query = query.Where("`title` like ? or `desc` like ? or `content` like ?", extra["multi_like_search"], extra["multi_like_search"], extra["multi_like_search"])

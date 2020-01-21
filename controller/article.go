@@ -49,6 +49,12 @@ type article_list struct {
 	Author		  string `json:"author"`
 }
 
+type TimeArticle struct {
+	Title string  `json:"title"`
+	ArticleId int `json:"article_id"`
+	Date string   `json:"date"`
+}
+
 func Index(c *gin.Context)  {
 	search := c.Query("search")
 	tag_id, _ := strconv.Atoi(c.Query("tag_id"))
@@ -271,4 +277,29 @@ func StatisticsViewCount()  {
 			pkg.Redis.IncrBy(value, int64(view_count))
 		}
 	}
+}
+
+func Timeline(c *gin.Context)  {
+	var count int
+	var articleList []model.Article
+	var single_article TimeArticle
+	article := &model.Article{}
+	result := make(map[string]interface{})
+	list := make(map[string][]TimeArticle)
+
+	article.GetList(map[string]interface{}{}, map[string]interface{}{
+		"order": "created desc,id desc",
+		"field": "id,title,created",
+	}, &articleList, &count)
+
+	for _, value := range articleList {
+		month := time.Unix(int64(value.Created), 0).Format("2006年01月")
+		single_article.Title = value.Title
+		single_article.ArticleId = value.ID
+		single_article.Date = time.Unix(int64(value.Created), 0).Format("01-02")
+		list[month] = append(list[month], single_article)
+	}
+
+	result["list"] = list
+	e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS, Data: result})
 }
