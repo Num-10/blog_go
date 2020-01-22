@@ -13,6 +13,7 @@ type tag_list struct {
 	TagId int  `json:"tag_id"`
 	Title string `json:"title"`
 	ArticleCount int `json:"article_count"`
+	Sort int `json:"sort"`
 }
 
 func TagList(c *gin.Context)  {
@@ -27,25 +28,32 @@ func TagList(c *gin.Context)  {
 	var count int
 	extra := make(map[string]interface{})
 	extra["order"] = "sort desc,id desc"
-	extra["field"] = "id,title"
+	extra["field"] = "id,title,sort"
 	if page > 0 && page_size > 0 {
 		extra["page"] = page
 		extra["page_size"] = page_size
 	}
 
-	tag.GetList(params, extra, &tagList, &count)
+	tag.GetList(params, map[string]interface{}{"count": true}, &tagList, &count)
+	result["count"] = count
 
-	article := &model.Article{}
-	var articleList []string
-	var tag_key tag_list
+	if (count > 0) {
+		tag.GetList(params, extra, &tagList, &count)
 
-	for _, value := range tagList {
-		tag_key.TagId = value.ID
-		tag_key.Title = value.Title
-		article.GetList(map[string]interface{}{"tag_id": value.ID}, map[string]interface{}{"count": true}, &articleList, &count)
-		tag_key.ArticleCount = count
-		tag_lists = append(tag_lists, tag_key)
+		article := &model.Article{}
+		var articleList []string
+		var tag_key tag_list
+
+		for _, value := range tagList {
+			tag_key.TagId = value.ID
+			tag_key.Title = value.Title
+			tag_key.Sort = value.Sort
+			article.GetList(map[string]interface{}{"tag_id": value.ID}, map[string]interface{}{"count": true}, &articleList, &count)
+			tag_key.ArticleCount = count
+			tag_lists = append(tag_lists, tag_key)
+		}
 	}
+
 
 	result["list"] = tag_lists
 	e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS, Data: result})
@@ -110,4 +118,35 @@ func TagDelete(c *gin.Context)  {
 		return
 	}
 	e.Json(c, &e.Return{Code: e.SERVICE_SUCCESS})
+}
+
+func TagFind(c *gin.Context)  {
+	tag_id, _ := strconv.Atoi(c.Param("id"))
+	params := make(map[string]interface{})
+
+	tag := &model.Tag{}
+	var tagList []model.Tag
+	var tag_lists []tag_list
+	var count int
+	params["id"] = tag_id
+	extra := make(map[string]interface{})
+	extra["field"] = "id,title,sort"
+
+	tag.GetList(params, extra, &tagList, &count)
+
+	var tag_key tag_list
+
+	for _, value := range tagList {
+		tag_key.TagId = value.ID
+		tag_key.Title = value.Title
+		tag_key.Sort = value.Sort
+
+		tag_lists = append(tag_lists, tag_key)
+	}
+
+	if len(tag_lists) > 0 {
+		e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS, Data: tag_lists[0]})
+	} else {
+		e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS})
+	}
 }

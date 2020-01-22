@@ -7,8 +7,8 @@ type Link struct {
 	Desc string			`gorm:"column:desc"`
 	Link string			`gorm:"column:link"`
 	Sort int			`gorm:"column:sort"`
-	Created string		`gorm:"column:created"`
-	Updated string		`gorm:"column:updated"`
+	Created int			`gorm:"column:created"`
+	Updated int			`gorm:"column:updated"`
 }
 
 func (l *Link) Create() error {

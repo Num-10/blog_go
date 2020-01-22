@@ -52,6 +52,8 @@ func LinkCreate(c *gin.Context)  {
 	user := c.GetStringMap("login_user")
 
 	title := strings.TrimSpace(c.PostForm("title"))
+	desc := strings.TrimSpace(c.PostForm("desc"))
+	site_link := strings.TrimSpace(c.PostForm("link"))
 	sort, _ := strconv.Atoi(c.PostForm("sort"))
 
 	if title == "" || utf8.RuneCountInString(title) > 10 {
@@ -62,6 +64,9 @@ func LinkCreate(c *gin.Context)  {
 	link := &(model.Link{
 		UserID: (user["user_id"]).(int),
 		Title: title,
+		Desc: desc,
+		Link: site_link,
+		Sort: sort,
 	})
 
 	link.Find(link, "")
