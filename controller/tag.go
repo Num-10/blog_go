@@ -66,7 +66,7 @@ func TagCreate(c *gin.Context)  {
 	title := strings.TrimSpace(c.PostForm("title"))
 	sort, _ := strconv.Atoi(c.PostForm("sort"))
 
-	if title == "" || utf8.RuneCountInString(title) > 10 {
+	if title == "" || utf8.RuneCountInString(title) > 20 {
 		e.Json(c, &e.Return{Code:e.PRRAMS_ERROR})
 		return
 	}

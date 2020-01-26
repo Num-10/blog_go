@@ -30,6 +30,7 @@ func Router(router *gin.Engine) {
 		authApi.DELETE("/tag/delete/:id", controller.TagDelete)
 		authApi.POST("/article/save/:id", controller.ArticleSave)
 		authApi.DELETE("/article/delete/:id", controller.ArticleDelete)
+		authApi.GET("/link/find/:id", controller.LinkFind)
 		authApi.POST("/link/save/:id", controller.LinkCreate)
 		authApi.DELETE("/link/delete/:id", controller.LinkDelete)
 	}

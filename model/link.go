@@ -16,7 +16,7 @@ func (l *Link) Create() error {
 }
 
 func (l *Link) Update(where, data interface{}) error {
-	return Db.Model(&Article{}).Where(where).Update(data).Error
+	return Db.Model(&Link{}).Where(where).Update(data).Error
 }
 
 func (l *Link) Find(where interface{}, order string) {
