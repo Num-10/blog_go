@@ -47,6 +47,7 @@ type article_list struct {
 	UpdatedFormat string `json:"updated_format"`
 	TagName		  string `json:"tag_name"`
 	Author		  string `json:"author"`
+	ForStatus	  bool	 `json:"for_status"`
 }
 
 type TimeArticle struct {
@@ -90,6 +91,11 @@ func Index(c *gin.Context)  {
 		}
 		if value.Updated > 0 {
 			articleList[key].UpdatedFormat = time.Unix(int64(value.Updated), 0).Format("2006-01-02")
+		}
+		if value.Status == model.ARTICLE_STATUS_NORMAL {
+			articleList[key].ForStatus = true
+		} else {
+			articleList[key].ForStatus = false
 		}
 		tag := &model.Tag{}
 		tag.Find(map[string]interface{}{"id": value.TagID}, "")
@@ -245,16 +251,33 @@ func ArticleSave(c *gin.Context)  {
 
 func ArticleDelete(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	if id <= 0 {
+	status, _ := strconv.Atoi(c.DefaultQuery("status", "0"))
+	fmt.Println(status)
+	if id <= 0 || (status != 1 && status != 2 && status != 3) {
 		e.Json(c, &e.Return{Code:e.PRRAMS_ERROR})
+		return
 	}
+
 	article := &model.Article{ID:id}
 	article.Find(article, "")
 	if article.Title == "" {
 		e.Json(c, &e.Return{Code:e.DATA_NOT_EXISTS})
 		return
 	}
-	err := article.Update(article, map[string]interface{}{"status": model.ARTICLE_STATUS_DELETE})
+
+	var sql_status int
+	switch status {
+	case 1:
+		sql_status = model.ARTICLE_STATUS_NORMAL
+	case 2:
+		sql_status = model.ARTICLE_STATUS_HIDE
+	case 3:
+		sql_status = model.ARTICLE_STATUS_DELETE
+	default:
+		sql_status = model.ARTICLE_STATUS_DELETE
+	}
+
+	err := article.Update(article, map[string]interface{}{"status": sql_status})
 	if err != nil {
 		e.Json(c, &e.Return{Code:e.SERVICE_FIAL})
 		return
@@ -301,5 +324,66 @@ func Timeline(c *gin.Context)  {
 	}
 
 	result["list"] = list
+	e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS, Data: result})
+}
+
+func ArticleList(c *gin.Context)  {
+	search := c.Query("search")
+	tag_id, _ := strconv.Atoi(c.Query("tag_id"))
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	status, _ := strconv.Atoi(c.DefaultQuery("status", "0"))
+	page_size, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
+
+	params := make(map[string]interface{})
+	if tag_id > 0 {
+		params["tag_id"] = tag_id
+	}
+	if status > 0 {
+		params["status"] = status
+	}
+
+	article := &model.Article{}
+	var articleList []article_list
+	result := make(map[string]interface{})
+	var count int
+	article.GetList(params, map[string]interface{}{
+		"page": page,
+		"page_size": page_size,
+		"multi_like_search": search,
+		"order": "is_top desc,sort desc,created desc,id desc",
+		"count": true,
+		"status": 0,
+	}, &articleList, &count)
+	article.GetList(params, map[string]interface{}{
+		"page": page,
+		"page_size": page_size,
+		"multi_like_search": search,
+		"order": "is_top desc,sort desc,created desc,id desc",
+		"status": 0,
+	}, &articleList, &count)
+
+	for key, value := range articleList {
+		if value.Created > 0 {
+			articleList[key].CreatedFormat = time.Unix(int64(value.Created), 0).Format("2006-01-02")
+		}
+		if value.Updated > 0 {
+			articleList[key].UpdatedFormat = time.Unix(int64(value.Updated), 0).Format("2006-01-02")
+		}
+		tag := &model.Tag{}
+		tag.Find(map[string]interface{}{"id": value.TagID}, "")
+		articleList[key].TagName = tag.Title
+		view_count, _ := pkg.Redis.Get(model.ARTICLE_VIEW_COUNT_PREFIX + "id:" + strconv.Itoa(value.ID)).Int()
+		articleList[key].ViewCount += view_count
+		if value.CoverImageURL != "" {
+			articleList[key].CoverImageURL = conf.AppIni.DomainUrl + conf.AppIni.ImageUrl + value.CoverImageURL
+		}
+
+		user := &model.User{ID: value.UserId}
+		user.GetUser(user)
+		articleList[key].Author = user.Username
+	}
+
+	result["list"] = articleList
+	result["count"] = count
 	e.Json(c, &e.Return{Code:e.SERVICE_SUCCESS, Data: result})
 }
