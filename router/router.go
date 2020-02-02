@@ -8,7 +8,7 @@ import (
 
 func Router(router *gin.Engine) {
 	router.Static("/images", "./runtime/upload/images")
-	openApi := router.Group("/oo")
+	openApi := router.Group("/api/oo")
 	{
 		openApi.GET("", controller.Index)
 		openApi.GET("/article/:id", controller.SingleArticle)
@@ -21,7 +21,7 @@ func Router(router *gin.Engine) {
 		openApi.GET("/link/list", controller.LinkList)
 	}
 
-	authApi := router.Group("/ao")
+	authApi := router.Group("/api/ao")
 	authApi.Use(middleware.Verification())
 	{
 		authApi.GET("/user/:id", controller.User)
