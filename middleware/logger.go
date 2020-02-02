@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"blog_go/conf"
 	"blog_go/pkg"
 	"database/sql/driver"
 	"fmt"
@@ -40,7 +39,7 @@ func LoggerToFile() gin.HandlerFunc {
 		if len(c.Request.Header["Origin"]) > 0 {
 			method := c.Request.Method
 			// 核心处理方式
-			c.Header("Access-Control-Allow-Origin", conf.AppIni.AllowRequestDomain)
+			c.Header("Access-Control-Allow-Origin", "*")
 			c.Header("Access-Control-Allow-Credentials", "true")
 			c.Header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, token")
 			c.Header("Access-Control-Allow-Methods", "GET, OPTIONS, POST, PUT, DELETE")
