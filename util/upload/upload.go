@@ -30,7 +30,7 @@ func UploadSetUp()  {
 
 func CheckImage(file *multipart.FileHeader) (bool, int) {
 	if file.Size > int64(conf.UploadIni.ImageMaxSize << 20) {
-		return false, e.IMAGE_OVER_SIZE
+		return false, e. IMAGE_OVER_SIZE
 	}
 	isAllow := false
 	ext := strings.ToLower(filepath.Ext(file.Filename))

@@ -152,6 +152,11 @@ func SingleArticle(c *gin.Context)  {
 		if value.Updated > 0 {
 			articleList[key].UpdatedFormat = time.Unix(int64(value.Updated), 0).Format("2006-01-02 15:04:05")
 		}
+		if value.Status == model.ARTICLE_STATUS_NORMAL {
+			articleList[key].ForStatus = true
+		} else {
+			articleList[key].ForStatus = false
+		}
 		tag := &model.Tag{}
 		tag.Find(map[string]interface{}{"id": value.TagID}, "")
 		articleList[key].TagName = tag.Title
@@ -240,6 +245,9 @@ func ArticleSave(c *gin.Context)  {
 		}
 		err = article.Update(map[string]interface{}{"id": id}, updateData)
 	} else {
+		if json.CoverImageURL != "" {
+			article.CoverImageURL = json.CoverImageURL
+		}
 		err = article.Create()
 	}
 	if err != nil {

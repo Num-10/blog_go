@@ -34,5 +34,6 @@ func Router(router *gin.Engine) {
 		authApi.GET("/link/find/:id", controller.LinkFind)
 		authApi.POST("/link/save/:id", controller.LinkCreate)
 		authApi.DELETE("/link/delete/:id", controller.LinkDelete)
+		authApi.POST("/upload/image_local", controller.UploadImageLocal)
 	}
 }
