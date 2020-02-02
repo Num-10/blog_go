@@ -27,6 +27,7 @@ type App struct {
 	RootPath string
 	DomainUrl string
 	ImageUrl string
+	AllowRequestDomain string
 }
 var AppIni App
 
