@@ -7,7 +7,7 @@ import (
 )
 
 func Router(router *gin.Engine) {
-	router.Static("/images", "./runtime/upload/images")
+	router.Static("/api/images", "./runtime/upload/images")
 	openApi := router.Group("/api/oo")
 	{
 		openApi.GET("", controller.Index)
